@@ -1,0 +1,63 @@
+version: "3.8"
+
+volumes:
+  pg_data_production:
+  static_volume:
+  media:
+
+services:
+  db:
+    image: postgres:13
+    env_file: .env
+    volumes:
+      - pg_data_production:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    image: lobanov07/clear-time_backend:latest
+    env_file: .env
+    depends_on:
+      - db
+
+    volumes:
+      - media:/app/media
+      - static_volume:/app/collected_static
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+      "
+    restart: always
+
+  frontend:
+    image: lobanov07/clear-time_frontend:latest
+    env_file: .env
+    depends_on:
+      - backend
+
+    volumes:
+      - static_volume:/frontend_static
+    command: >
+      sh -c "
+        npm ci --production &&
+        npm run build &&
+        cp -r /app/build/. /frontend_static
+      "
+
+    restart: on-failure
+
+  gateway:
+    image: lobanov07/clear-time_gateway:latest
+    env_file: .env
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "8000:80"
+    volumes:
+      - static_volume:/staticfiles:ro
+      - media:/var/html/media/
+      - ./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    entrypoint: ["nginx", "-g", "daemon off;"]
+    restart: always

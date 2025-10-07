@@ -1,0 +1,19 @@
+# Web
+Django
+djangorestframework
+django-cors-headers
+python-dotenv
+django-debug-toolbar
+pytest-django
+psycopg2-binary
+django_bootstrap5
+
+# Development Tools
+black
+flake8
+isort
+mypy
+pytest
+pytest-cov
+requests-mock
+pymorphy2
