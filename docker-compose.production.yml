@@ -14,7 +14,7 @@ services:
     restart: always
 
   backend:
-    image: lobanov07/clear-time_backend:latest
+    image: lobanov07/cleartime_backend:latest
     env_file: .env
     depends_on:
       - db
@@ -31,7 +31,7 @@ services:
     restart: always
 
   frontend:
-    image: lobanov07/clear-time_frontend:latest
+    image: lobanov07/cleartime_frontend:latest
     env_file: .env
     depends_on:
       - backend
@@ -48,7 +48,7 @@ services:
     restart: on-failure
 
   gateway:
-    image: lobanov07/clear-time_gateway:latest
+    image: lobanov07/cleartime_gateway:latest
     env_file: .env
     depends_on:
       - backend
