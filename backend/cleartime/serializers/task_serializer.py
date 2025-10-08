@@ -4,6 +4,4 @@ from cleartime.models import Task
 class TaskSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Task
-        fields = ["id","title","description"]
-        
-        
+        fields = ["id","title","description","is_completed"]
