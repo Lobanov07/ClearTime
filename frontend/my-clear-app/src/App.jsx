@@ -51,7 +51,13 @@ function App() {
     <div className="app">
       <Header onCreateClick={() => setIsCreateOpen(true)} />
       <FilterBar filters={filters} onChange={setFilters} />
-      <Board filters={filters} columns={columns} setColumns={setColumns} onOpenTask={setActiveTask} />
+      <Board
+        filters={filters}
+        columns={columns}
+        setColumns={setColumns}
+        onOpenTask={setActiveTask}
+        onDoubleClickTask={setActiveTask}
+      />
 
       {isCreateOpen && (
         <div className="modal-overlay" onClick={() => setIsCreateOpen(false)}>
@@ -121,8 +127,23 @@ function CreateTaskForm({ onCancel, onCreate, columnTitles }) {
 
   const disabled = !state.title.trim();
 
+  // Обработчик клавиатуры
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      onCancel();
+    } else if (e.key === 'Enter' && !disabled && e.ctrlKey) {
+      onCreate(state.column, {
+        title: state.title,
+        description: state.description,
+        priority: state.priority,
+        assignee: state.assignee,
+        due_date: state.due_date
+      });
+    }
+  };
+
   return (
-    <div className="modal-body">
+    <div className="modal-body" onKeyDown={handleKeyDown}>
       <div className="form-group">
         <label>Колонка</label>
         <select className="form-select" value={state.column} onChange={(e) => setState(s => ({ ...s, column: e.target.value }))}>
@@ -179,8 +200,17 @@ function TaskDetailsForm({ task, onCancel, onSave }) {
     due_date: task.due_date || ""
   });
 
+  // Обработчик клавиатуры
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      onCancel();
+    } else if (e.key === 'Enter' && e.ctrlKey) {
+      onSave(state);
+    }
+  };
+
   return (
-    <div className="modal-body">
+    <div className="modal-body" onKeyDown={handleKeyDown}>
       <div className="form-group">
         <label>Название</label>
         <input className="form-input" type="text" value={state.title} onChange={(e) => setState(s => ({ ...s, title: e.target.value }))} />

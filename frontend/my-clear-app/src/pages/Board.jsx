@@ -2,7 +2,7 @@ import { DragDropContext } from "react-beautiful-dnd";
 import Column from "../components/Column";
 import { useMemo, useState } from "react";
 
-export default function Board({ filters, columns, setColumns, onOpenTask }) {
+export default function Board({ filters, columns, setColumns, onOpenTask, onDoubleClickTask }) {
 
   const normalizeUrgency = (tag) => {
     const t = (tag || "").toLowerCase();
@@ -53,7 +53,13 @@ export default function Board({ filters, columns, setColumns, onOpenTask }) {
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="board">
         {Object.keys(filteredColumns).map((colName) => (
-          <Column key={colName} title={colName} tasks={filteredColumns[colName]} onOpenTask={onOpenTask} />
+          <Column
+            key={colName}
+            title={colName}
+            tasks={filteredColumns[colName]}
+            onOpenTask={onOpenTask}
+            onDoubleClickTask={onDoubleClickTask}
+          />
         ))}
       </div>
     </DragDropContext>

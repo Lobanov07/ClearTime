@@ -53,7 +53,7 @@ const titleToStatus = (title) => {
   return statusMap[title] || 'todo';
 };
 
-export default function Column({ title, tasks, onAddTask, columnId, onOpenTask }) {
+export default function Column({ title, tasks, onAddTask, columnId, onOpenTask, onDoubleClickTask }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -89,27 +89,39 @@ export default function Column({ title, tasks, onAddTask, columnId, onOpenTask }
   };
 
   const handleAddTask = async () => {
-    if (newTask.title.trim() !== "") {
-      setIsLoading(true);
+    if (!newTask.title.trim()) {
+      alert('Пожалуйста, введите название задачи.');
+      return;
+    }
 
-      try {
-        // Вариант 1: Если родительский компонент управляет состоянием
-        if (typeof onAddTask === 'function') {
-          await onAddTask(columnId || title, newTask);
-        }
-        // Вариант 2: Прямой вызов API (если используется локальное состояние)
-        else {
-          await apiService.createTask(columnId || title, newTask);
-          // Здесь можно обновить локальное состояние или вызвать callback для обновления списка
-        }
+    setIsLoading(true);
 
-        closeModal();
-      } catch (error) {
-        console.error('Ошибка при создании задачи:', error);
-        // Можно добавить уведомление об ошибке
-      } finally {
-        setIsLoading(false);
+    try {
+      // Вариант 1: Если родительский компонент управляет состоянием
+      if (typeof onAddTask === 'function') {
+        await onAddTask(columnId || title, newTask);
       }
+      // Вариант 2: Прямой вызов API (если используется локальное состояние)
+      else {
+        await apiService.createTask(columnId || title, newTask);
+        // Здесь можно обновить локальное состояние или вызвать callback для обновления списка
+      }
+
+      closeModal();
+    } catch (error) {
+      console.error('Ошибка при создании задачи:', error);
+      // Можно добавить уведомление об ошибке
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Обработчик клавиатуры для модального окна
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    } else if (e.key === 'Enter' && !isLoading && e.ctrlKey) {
+      handleAddTask();
     }
   };
 
@@ -136,9 +148,13 @@ export default function Column({ title, tasks, onAddTask, columnId, onOpenTask }
             {...provided.droppableProps}
           >
             {tasks.map((task, index) => (
-              <div key={task.id} onClick={() => onOpenTask && onOpenTask(task)}>
-                <TaskCard task={task} index={index} />
-              </div>
+              <TaskCard
+                key={task.id}
+                task={task}
+                index={index}
+                onOpenTask={onOpenTask}
+                onDoubleClick={onDoubleClickTask}
+              />
             ))}
             {provided.placeholder}
 
@@ -154,7 +170,7 @@ export default function Column({ title, tasks, onAddTask, columnId, onOpenTask }
       {/* Модальное окно добавления задачи */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
             <div className="modal-header">
               <h3>Создать новую задачу в "{title}"</h3>
               <button onClick={closeModal} className="close-btn">×</button>
@@ -245,7 +261,7 @@ export default function Column({ title, tasks, onAddTask, columnId, onOpenTask }
               <button
                 onClick={handleAddTask}
                 className="confirm-btn"
-                disabled={!newTask.title.trim() || isLoading}
+                disabled={isLoading}
               >
                 {isLoading ? 'Создание...' : 'Создать задачу'}
               </button>

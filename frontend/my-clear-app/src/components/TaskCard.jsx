@@ -1,6 +1,6 @@
 import { Draggable } from "react-beautiful-dnd";
 
-export default function TaskCard({ task, index }) {
+export default function TaskCard({ task, index, onOpenTask, onDoubleClick }) {
   const title = task.title || task.text;
   const tag = task.tag || task.priority || "";
   const avatar = task.assignee || task.user || "";
@@ -26,6 +26,9 @@ export default function TaskCard({ task, index }) {
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          onClick={() => onOpenTask && onOpenTask(task)}
+          onDoubleClick={() => onDoubleClick && onDoubleClick(task)}
+          style={{ cursor: onOpenTask ? 'pointer' : 'default' }}
         >
           <p>{title}</p>
           {due ? <div style={{ fontSize: 12, color: overdue ? "#b91c1c" : "#6b7280" }}>{overdue ? "просрочено до" : "до"} {due}</div> : null}

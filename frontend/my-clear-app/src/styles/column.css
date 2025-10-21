@@ -77,10 +77,11 @@
   border-radius: 12px;
   width: 500px;
   max-width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
+  /* Возвращаем поведение без внутренней прокрутки */
+  max-height: none;
+  overflow: visible;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  padding-right: 25px;
+  padding-right: 32px;
 }
 
 .modal-header {
@@ -163,7 +164,8 @@
 }
 
 .form-textarea {
-  resize: vertical;
+  /* Убираем ползунок изменения размеров у текстовой области */
+  resize: none;
   min-height: 80px;
 }
 
@@ -205,7 +207,10 @@
   background: #0056b3;
 }
 
+/* Отключаем серый цвет для неактивной кнопки подтверждения, чтобы визуально
+   сохранить прежний стиль (кнопка остаётся недоступной функционально, если задан атрибут disabled) */
 .confirm-btn:disabled {
-  background: #ccc;
+  background: #007bff;
+  opacity: 0.8;
   cursor: not-allowed;
 }
