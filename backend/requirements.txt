@@ -1,19 +1,10 @@
-# Web
-Django
-djangorestframework
-django-cors-headers
-python-dotenv
-django-debug-toolbar
-pytest-django
-psycopg2-binary
-django_bootstrap5
 
-# Development Tools
-black
-flake8
-isort
-mypy
-pytest
-pytest-cov
-requests-mock
-pymorphy2
+asgiref==3.9.2
+Django==5.2.6
+djangorestframework==3.16.1
+gunicorn==20.1.0
+mysqlclient==2.2.7
+setuptools==80.9.0
+sqlparse==0.5.3
+tzdata==2025.2
+django-cors-headers

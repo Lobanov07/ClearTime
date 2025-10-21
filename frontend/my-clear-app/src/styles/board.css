@@ -1,0 +1,99 @@
+/* Сайдбар */
+.sidebar {
+  width: 220px;
+  background: white;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 60px;
+}
+
+.sidebar li {
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.sidebar li:hover {
+  background: #f3f4f6;
+}
+
+/* Доска */
+.board {
+  margin-left: 0;
+  margin-top: 0;
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px 20px;
+  overflow-x: auto;
+  height: calc(100vh - 120px);
+}
+
+/* Колонка */
+.column {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.column h2 {
+  margin: 0 0 10px 0;
+  padding-bottom: 5px;
+}
+
+/* Задача */
+.task-card {
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.task-card:hover {
+  transform: scale(1.02);
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.tag {
+  padding: 3px 8px;
+  background: #e5e7eb;
+  border-radius: 6px;
+}
+
+.avatar {
+  font-size: 18px;
+}
+
+/* Кнопка в колонке */
+.add-task {
+  border: none;
+  background: #e5e7eb;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-task:hover {
+  background: #d1d5db;
+}

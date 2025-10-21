@@ -1,0 +1,218 @@
+import "./styles/app.css";
+import "./styles/board.css";
+import "./styles/filter.css";
+import Header from "./components/Header";
+import FilterBar from "./components/FilterBar";
+import Board from "./pages/Board";
+import { useEffect, useMemo, useState } from "react";
+import Column from "./components/Column";
+
+function App() {
+  const [filters, setFilters] = useState({ urgency: "all", hasDate: "all" });
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [activeTask, setActiveTask] = useState(null);
+  const [columns, setColumns] = useState({
+    "На день": [
+      { id: "1", text: "Сделать дизайн", tag: "Срочно", user: "👩", due_date: "2025-10-10" },
+      { id: "2", text: "Сверстать страницу", tag: "Нормально", user: "👨" },
+      { id: "3", text: "Подключить API", tag: "Неважно", user: "👩‍💻", due_date: "" }
+    ],
+    "На неделю": [],
+    "На месяц": [],
+    "На дату": []
+  });
+
+  // Load columns from LocalStorage once
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("cleartime.columns");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          setColumns(parsed);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Save on change
+  useEffect(() => {
+    try {
+      localStorage.setItem("cleartime.columns", JSON.stringify(columns));
+    } catch (e) {
+      // ignore
+    }
+  }, [columns]);
+
+  // Темная тема отключена по просьбе пользователя (код удален/закомментирован)
+  return (
+    <div className="app">
+      <Header onCreateClick={() => setIsCreateOpen(true)} />
+      <FilterBar filters={filters} onChange={setFilters} />
+      <Board filters={filters} columns={columns} setColumns={setColumns} onOpenTask={setActiveTask} />
+
+      {isCreateOpen && (
+        <div className="modal-overlay" onClick={() => setIsCreateOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Создать новую задачу</h3>
+              <button className="close-btn" onClick={() => setIsCreateOpen(false)}>×</button>
+            </div>
+            <CreateTaskForm
+              onCancel={() => setIsCreateOpen(false)}
+              onCreate={(colTitle, task) => {
+                setColumns(prev => ({
+                  ...prev,
+                  [colTitle]: [...(prev[colTitle] || []), { ...task, id: String(Date.now()) }]
+                }));
+                setIsCreateOpen(false);
+              }}
+              columnTitles={Object.keys(columns)}
+            />
+          </div>
+        </div>
+      )}
+
+      {activeTask && (
+        <div className="modal-overlay" onClick={() => setActiveTask(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Задача</h3>
+              <button className="close-btn" onClick={() => setActiveTask(null)}>×</button>
+            </div>
+            <TaskDetailsForm
+              task={activeTask}
+              onCancel={() => setActiveTask(null)}
+              onSave={(updated) => {
+                setColumns(prev => {
+                  const next = { ...prev };
+                  // find task by id and replace in all columns
+                  for (const col in next) {
+                    const idx = next[col].findIndex(t => t.id === updated.id);
+                    if (idx !== -1) {
+                      next[col] = [...next[col]];
+                      next[col][idx] = { ...next[col][idx], ...updated };
+                      break;
+                    }
+                  }
+                  return next;
+                });
+                setActiveTask(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CreateTaskForm({ onCancel, onCreate, columnTitles }) {
+  const [state, setState] = useState({
+    title: "",
+    description: "",
+    priority: "Нормально",
+    assignee: "",
+    due_date: "",
+    column: columnTitles[0] || "На день"
+  });
+
+  const disabled = !state.title.trim();
+
+  return (
+    <div className="modal-body">
+      <div className="form-group">
+        <label>Колонка</label>
+        <select className="form-select" value={state.column} onChange={(e) => setState(s => ({ ...s, column: e.target.value }))}>
+          {columnTitles.map(ct => <option key={ct} value={ct}>{ct}</option>)}
+        </select>
+      </div>
+      <div className="form-group">
+        <label>Название задачи *</label>
+        <input className="form-input" type="text" value={state.title} onChange={(e) => setState(s => ({ ...s, title: e.target.value }))} />
+      </div>
+      <div className="form-group">
+        <label>Описание</label>
+        <textarea className="form-textarea" rows="3" value={state.description} onChange={(e) => setState(s => ({ ...s, description: e.target.value }))} />
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>Срочность</label>
+          <select className="form-select" value={state.priority} onChange={(e) => setState(s => ({ ...s, priority: e.target.value }))}>
+            <option>Срочно</option>
+            <option>Нормально</option>
+            <option>Неважно</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Исполнитель</label>
+          <input className="form-input" type="text" value={state.assignee} onChange={(e) => setState(s => ({ ...s, assignee: e.target.value }))} />
+        </div>
+      </div>
+      <div className="form-group">
+        <label>Срок</label>
+        <input className="form-input" type="date" value={state.due_date} onChange={(e) => setState(s => ({ ...s, due_date: e.target.value }))} />
+      </div>
+      <div className="modal-footer">
+        <button className="cancel-btn" onClick={onCancel}>Отмена</button>
+        <button className="confirm-btn" disabled={disabled} onClick={() => onCreate(state.column, {
+          title: state.title,
+          description: state.description,
+          priority: state.priority,
+          assignee: state.assignee,
+          due_date: state.due_date
+        })}>Создать</button>
+      </div>
+    </div>
+  );
+}
+
+function TaskDetailsForm({ task, onCancel, onSave }) {
+  const [state, setState] = useState({
+    id: task.id,
+    title: task.title || task.text || "",
+    description: task.description || "",
+    priority: task.priority || task.tag || "Нормально",
+    assignee: task.assignee || task.user || "",
+    due_date: task.due_date || ""
+  });
+
+  return (
+    <div className="modal-body">
+      <div className="form-group">
+        <label>Название</label>
+        <input className="form-input" type="text" value={state.title} onChange={(e) => setState(s => ({ ...s, title: e.target.value }))} />
+      </div>
+      <div className="form-group">
+        <label>Описание</label>
+        <textarea className="form-textarea" rows="4" value={state.description} onChange={(e) => setState(s => ({ ...s, description: e.target.value }))} />
+      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>Срочность</label>
+          <select className="form-select" value={state.priority} onChange={(e) => setState(s => ({ ...s, priority: e.target.value }))}>
+            <option>Срочно</option>
+            <option>Нормально</option>
+            <option>Неважно</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Исполнитель</label>
+          <input className="form-input" type="text" value={state.assignee} onChange={(e) => setState(s => ({ ...s, assignee: e.target.value }))} />
+        </div>
+      </div>
+      <div className="form-group">
+        <label>Срок</label>
+        <input className="form-input" type="date" value={state.due_date} onChange={(e) => setState(s => ({ ...s, due_date: e.target.value }))} />
+      </div>
+      <div className="modal-footer">
+        <button className="cancel-btn" onClick={onCancel}>Отмена</button>
+        <button className="confirm-btn" onClick={() => onSave(state)}>Сохранить</button>
+      </div>
+    </div>
+  );
+}
+
+export default App;
