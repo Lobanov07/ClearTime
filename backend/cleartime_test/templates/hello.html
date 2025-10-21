@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Приветствие</title>
+  </head>
+  <body>
+    <h2>Введите имя:</h2>
+    <form method="get">
+      <input type="text" name="name" placeholder="Ваше имя" required />
+      <button type="submit">Отправить</button>
+    </form>
+
+    {% if name %}
+    <h3>Привет, {{ name }}!</h3>
+    {% endif %}
+  </body>
+</html>
