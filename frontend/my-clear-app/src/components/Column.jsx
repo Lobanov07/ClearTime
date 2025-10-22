@@ -135,7 +135,7 @@ export default function Column({ title, tasks, onAddTask, columnId, onOpenTask, 
     <div className="column">
       <div className="column-header">
         <h2>{title}</h2>
-        <button onClick={openModal} className="add-task-btn" disabled={isLoading}>
+        <button onClick={openModal} className="add-task-btn" disabled={isLoading} hidden>
           {isLoading ? 'Загрузка...' : '+ Добавить задачу'}
         </button>
       </div>
