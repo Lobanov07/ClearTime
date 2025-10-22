@@ -1,8 +1,8 @@
 import { DragDropContext } from "react-beautiful-dnd";
 import Column from "../components/Column";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-export default function Board({ filters, columns, setColumns, onOpenTask, onDoubleClickTask }) {
+export default function Board({ filters, columns, setColumns, onOpenTask, onDoubleClickTask, onTaskUpdated }) {
 
   const normalizeUrgency = (tag) => {
     const t = (tag || "").toLowerCase();
@@ -59,6 +59,7 @@ export default function Board({ filters, columns, setColumns, onOpenTask, onDoub
             tasks={filteredColumns[colName]}
             onOpenTask={onOpenTask}
             onDoubleClickTask={onDoubleClickTask}
+            onTaskUpdated={onTaskUpdated}
           />
         ))}
       </div>

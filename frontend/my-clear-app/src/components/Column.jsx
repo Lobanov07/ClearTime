@@ -53,7 +53,7 @@ const titleToStatus = (title) => {
   return statusMap[title] || 'todo';
 };
 
-export default function Column({ title, tasks, onAddTask, columnId, onOpenTask, onDoubleClickTask }) {
+export default function Column({ title, tasks, onAddTask, columnId, onOpenTask, onDoubleClickTask, onTaskUpdated}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -148,14 +148,16 @@ export default function Column({ title, tasks, onAddTask, columnId, onOpenTask, 
             {...provided.droppableProps}
           >
             {tasks.map((task, index) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                index={index}
-                onOpenTask={onOpenTask}
-                onDoubleClick={onDoubleClickTask}
-              />
-            ))}
+  <TaskCard
+    key={task.id}
+    task={task}
+    index={index}
+    onOpenTask={onOpenTask}
+    onDoubleClick={onDoubleClickTask}
+    onTaskUpdated={onTaskUpdated}
+  />
+))}
+
             {provided.placeholder}
 
             {tasks.length === 0 && !snapshot.isDraggingOver && (
